@@ -16,11 +16,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, re_path, include  # Asegúrate de importar include
-from usuario import views
+from usuario import views as ViewUsuario
+from carro import views as ViewCarro
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('inventario.urls')),
-    re_path('api/registro', views.registro),
-    re_path('api/acceder', views.inicio),
+    re_path('api/registro', ViewUsuario.registro),
+    re_path('api/acceder', ViewUsuario.inicio),
+    re_path('api/agregar-carro', ViewCarro.agregarProducto),
+    re_path('api/mostrar-carro', ViewCarro.mostrarProducto),
 ]
