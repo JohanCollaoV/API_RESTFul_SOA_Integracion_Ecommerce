@@ -1,0 +1,21 @@
+{% extends "./base.html" %}
+
+{% block title %}
+Ferremas | Acceder
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <form method="post" action="{% url 'acceder' %}">
+    {% csrf_token %}
+    <label for="username">Usuario:</label>
+    <input type="text" id="username" name="username" required>
+    <label for="password">Contraseña:</label>
+    <input type="password" id="password" name="password" required>
+    <button type="submit">Ingresar</button>
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+  </form>
+</div>
+  {% endblock %}
