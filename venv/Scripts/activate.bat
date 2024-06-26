@@ -8,7 +8,7 @@ if defined _OLD_CODEPAGE (
     "%SystemRoot%\System32\chcp.com" 65001 > nul
 )
 
-set VIRTUAL_ENV=C:\Users\colla\OneDrive\Documentos\DUOC_Ing_Informatica\5to_semestre_Ing_Informatica\Integracion_de_Plataformas\apis_Prueba_dos\api-integracion\venv
+set VIRTUAL_ENV=C:\Users\javie\OneDrive\Escritorio\api-integracion-pago\venv
 
 if not defined PROMPT set PROMPT=$P$G
 
