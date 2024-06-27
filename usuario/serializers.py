@@ -5,12 +5,18 @@ from django.core.exceptions import ValidationError
 class UsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = Usuario
-        fields = ['id', 'username', 'email', 'password']
+        fields = ['id', 'username', 'email', 'password',]
         extra_kwargs = {
             'password': {'write_only': True}
         }
 
+    
+    def validate_email(self, value):
+        if '@' not in value:
+            raise serializers.ValidationError("Introduzca una dirección de correo electrónico válida.")
+        return value
+
     def validate_password(self, value):
-        if len(value) < 8:
-            raise ValidationError("La contraseña debe tener al menos 8 caracteres.")
+        if len(value) < 6:
+            raise serializers.ValidationError("La contraseña debe tener al menos 6 caracteres.")
         return value
