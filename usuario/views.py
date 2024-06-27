@@ -22,6 +22,15 @@ from .models import UserProfile
 def registro(request):
     data = request.data
 
+    # Verificar si falta email o password
+    if 'email' not in data or 'password' not in data:
+        errors = {}
+        if 'email' not in data:
+            errors['email'] = ['Este campo es requerido']
+        if 'password' not in data:
+            errors['password'] = ['Este campo es requerido']
+        return Response(errors, status=status.HTTP_400_BAD_REQUEST)
+
     # Verificar el tipo de dato de la contraseña
     if isinstance(data.get("password"), int):
         password_type = 'integer'
