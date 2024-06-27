@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from inventario.models import Producto
 from carro.models import Carro
+from pago.models import Pago
 
 @pytest.fixture
 def api_client():
@@ -44,6 +45,34 @@ def test_pagar_carro_sin_autenticacion(api_client, setup_product_and_cart):
     url = reverse('pagar_carrito')
     response = api_client.post(url)
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+    
+@pytest.mark.django_db
+def test_pagar_carro_exitoso(api_client, setup_product_and_cart):
+    user, token, producto, carro = setup_product_and_cart
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+    url = reverse('pagar_carrito')
+    response = api_client.post(url)
+
+    assert response.status_code == status.HTTP_201_CREATED
+    assert 'respuesta' in response.data
+    assert 'total_pagado' in response.data
+    assert 'detalle_pago' in response.data
+
+    # Verificar que se haya creado el registro de pago en la base de datos
+    assert Pago.objects.filter(id_usuario=user).exists()
+    
+@pytest.mark.django_db
+def test_pagar_carro_con_stock_insuficiente(api_client, setup_product_and_cart):
+    user, token, producto, carro = setup_product_and_cart
+    producto.stock = 1  # Establecer stock insuficiente para el pago
+    producto.save()
+    
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+    url = reverse('pagar_carrito')
+    response = api_client.post(url)
+    
+    assert response.status_code == status.HTTP_406_NOT_ACCEPTABLE
+    assert 'No hay suficiente stock' in response.data['error']
 
 ## PRUEBAS DE INTEGRACION
 
