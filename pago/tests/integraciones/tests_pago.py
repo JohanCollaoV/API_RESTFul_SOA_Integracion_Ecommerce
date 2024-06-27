@@ -82,3 +82,45 @@ def test_pagar_carro_sin_autenticacion_integracion(api_client):
     url = reverse('pagar_carrito')
     response = api_client.post(url)
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+@pytest.mark.django_db
+def test_pagar_carro_stock_suficiente_integracion(api_client, setup_user_and_token):
+    user, token = setup_user_and_token
+    producto = Producto.objects.create(nombre='Producto suficiente', precio=5, stock=20)
+    Carro.objects.create(id_usuario=user, id_producto=producto, cantidad=10)
+    
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+    url = reverse('pagar_carrito')
+    response = api_client.post(url)
+    
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Producto.objects.get(pk=producto.pk).stock == 10
+
+@pytest.mark.django_db
+def test_pagar_carro_multiple_productos(api_client, setup_user_and_token):
+    user, token = setup_user_and_token
+    producto1 = Producto.objects.create(nombre='Producto 1', precio=20, stock=10)
+    producto2 = Producto.objects.create(nombre='Producto 2', precio=15, stock=5)
+    Carro.objects.create(id_usuario=user, id_producto=producto1, cantidad=1)
+    Carro.objects.create(id_usuario=user, id_producto=producto2, cantidad=3)
+    
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+    url = reverse('pagar_carrito')
+    response = api_client.post(url)
+    
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Pago.objects.filter(id_usuario=user).exists()
+    assert Producto.objects.get(pk=producto1.pk).stock == 9
+    assert Producto.objects.get(pk=producto2.pk).stock == 2
+    
+@pytest.mark.django_db
+def test_pagar_carro_actualizacion_stock(api_client, setup_product_and_cart):
+    user, token, producto, carro = setup_product_and_cart
+    api_client.credentials(HTTP_AUTHORIZATION=f'Token {token}')
+    url = reverse('pagar_carrito')
+    initial_stock = producto.stock
+    
+    response = api_client.post(url)
+    
+    assert response.status_code == status.HTTP_201_CREATED
+    assert Producto.objects.get(pk=producto.pk).stock == initial_stock - carro.cantidad

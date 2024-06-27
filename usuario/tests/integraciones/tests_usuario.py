@@ -8,10 +8,9 @@ from django.contrib.auth.models import User as Usuario
 from usuario.models import UserProfile
 from django.test import TestCase
 
-
-
 @pytest.mark.django_db
 class TestUsuarioAPI(TestCase):
+    ## PRUEBAS UNITARIAS
     def test_creacion_usuario_exitosa(self):
         client = APIClient()
         url = reverse('registro')
@@ -25,7 +24,6 @@ class TestUsuarioAPI(TestCase):
         assert response.status_code == status.HTTP_201_CREATED
         assert 'token' in response.data
         assert 'usuario' in response.data
-
 
     def test_validacion_email_invalido(self):
         client = APIClient()
@@ -52,7 +50,26 @@ class TestUsuarioAPI(TestCase):
 
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert 'password' in response.data
-        
+
+    def test_registro_con_datos_incompletos(self):
+        client = APIClient()
+        url = reverse('registro')
+        data = {
+            'username': 'testuser'
+            # Faltan email y password
+        }
+        response = client.post(url, data, format='json')
+
+        # Verificar que se devuelve un error 400 Bad Request
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        # Verificar que se devuelva un error para el campo 'email'
+        self.assertIn('email', response.data)
+
+        # Verificar que se devuelva un error para el campo 'password'
+        self.assertIn('password', response.data)
+
+    ## PRUEBAS DE INTEGRACIÓN
     def test_registro_y_autenticacion_exitosa(self):
         client = APIClient()
         url_registro = reverse('registro')
@@ -73,25 +90,7 @@ class TestUsuarioAPI(TestCase):
         assert response.status_code == status.HTTP_200_OK
         assert 'token' in response.data
         assert 'usuario' in response.data
-        
-    def test_registro_con_datos_incompletos(self):
-        client = APIClient()
-        url = reverse('registro')
-        data = {
-            'username': 'testuser'
-            # Faltan email y password
-        }
-        response = client.post(url, data, format='json')
 
-        # Verificar que se devuelve un error 400 Bad Request
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        
-        # Verificar que se devuelva un error para el campo 'email'
-        self.assertIn('email', response.data)
-        
-        # Verificar que se devuelva un error para el campo 'password'
-        self.assertIn('password', response.data)
-        
     def test_inicio_sesion_con_password_incorrecto(self):
         client = APIClient()
         user = Usuario.objects.create_user(username='testuser', password='password123')
@@ -103,6 +102,35 @@ class TestUsuarioAPI(TestCase):
         response = client.post(url, data, format='json')
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         assert 'error' in response.data
+
+    def test_inicio_sesion_usuario_no_existente(self):
+        client = APIClient()
+        url = reverse('inicio')
+        data = {
+            'username': 'usuario_no_existente',
+            'password': 'password123'
+        }
+        response = client.post(url, data, format='json')
+        assert response.status_code == status.HTTP_404_NOT_FOUND
+        assert 'error' in response.data
         
-    
+    def test_obtener_detalle_perfil_usuario(self):
+        client = APIClient()
+
+        # Registrar un nuevo usuario
+        url_registro = reverse('registro')
+        data_registro = {
+            'username': 'testuser',
+            'email': 'testuser@example.com',
+            'password': 'password123'
+        }
+        response = client.post(url_registro, data_registro, format='json')
+        assert response.status_code == status.HTTP_201_CREATED
+
+        # Obtener detalles del perfil del usuario registrado
+        # Verificar que existe la clave 'usuario' en response.data
+        assert 'usuario' in response.data
+
+        # No necesitas verificar 'id' directamente si no se devuelve en la respuesta
+        
         

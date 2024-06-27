@@ -8,15 +8,7 @@ from .serializers import UsuarioSerializer
 from rest_framework.exceptions import ValidationError
 from .models import UserProfile
 
-from django.contrib.auth.models import User as Usuario
-from django.shortcuts import get_object_or_404
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.authtoken.models import Token
-from .serializers import UsuarioSerializer
-from rest_framework.exceptions import ValidationError
-from .models import UserProfile
+
 
 @api_view(['POST'])
 def registro(request):
@@ -71,7 +63,7 @@ def registro(request):
 @api_view(['POST'])
 def inicio(request):
     try:
-        usuario = get_object_or_404(Usuario, username=request.data.get("username"))
+        usuario = Usuario.objects.get(username=request.data.get("username"))
 
         # Verificar el tipo de dato de la contraseña ingresada
         input_password = request.data.get("password")
@@ -101,10 +93,13 @@ def inicio(request):
         return Response({"token": token.key, "usuario": usuario_data}, status=status.HTTP_200_OK)
 
     except ValidationError as e:
-        return Response(e.detail, status=status.HTTP_400_BAD_REQUEST) 
+        return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
     except Usuario.DoesNotExist:
         return Response({"error": "Usuario no existe"}, status=status.HTTP_404_NOT_FOUND)
 
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    
+    
