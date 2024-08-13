@@ -1,6 +1,11 @@
-API de Gestión de Productos
-Este proyecto es una API RESTful desarrollada con Django y Django REST Framework para la gestión de productos.
+Esta API RESTful está desarrollada con Django y Django REST Framework para ofrecer una solución robusta y escalable para la gestión de productos. Está diseñada con una arquitectura orientada a servicios (SOA), lo que facilita la integración y modularidad de los distintos componentes del sistema.
 
+Características
+
+    Arquitectura SOA: Organiza el sistema en servicios independientes para promover la reutilización y escalabilidad.
+    Django REST Framework: Utiliza esta poderosa biblioteca para la creación de APIs, facilitando el desarrollo y la administración de endpoints.
+    Pruebas con Pytest: Implementa pruebas unitarias y de integración utilizando Pytest para asegurar la calidad y estabilidad del código.
+    
 Instalación
 Para instalar y ejecutar este proyecto en tu máquina local, sigue estos pasos:
 
