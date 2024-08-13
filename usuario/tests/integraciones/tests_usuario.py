@@ -126,11 +126,6 @@ class TestUsuarioAPI(TestCase):
         }
         response = client.post(url_registro, data_registro, format='json')
         assert response.status_code == status.HTTP_201_CREATED
-
-        # Obtener detalles del perfil del usuario registrado
-        # Verificar que existe la clave 'usuario' en response.data
         assert 'usuario' in response.data
-
-        # No necesitas verificar 'id' directamente si no se devuelve en la respuesta
         
         
