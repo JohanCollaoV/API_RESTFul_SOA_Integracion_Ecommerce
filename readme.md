@@ -1,6 +1,4 @@
-¡Claro! Aquí tienes el texto en formato Markdown:
 
-markdown
 
 # API de Gestión de Productos
 
